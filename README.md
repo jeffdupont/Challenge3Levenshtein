@@ -26,7 +26,7 @@ The Marketing team has come up with the following match requirements using this 
 * The Levenshtein Distance for `First` Name should be *no larger* than *3*.
 * The Levenshtein Distance for `Last` Name should be *no larger* than *1*.
 * The total Levenshtein Distance between `First` _AND_ `Last` name should be *no larger* than *3*.
-* The required Levenshtein Distance for `Last Name`should be configurable so that the business can increase/decrease the tolerance as needed.
+* The required Levenshtein Distance for `Last Name`should be configurable so that the business can increase/decrease the tolerance as needed.  A change to this configuration should reflect immediately and without restarting the application.  How you implement this is up to you.
 **NOTE** if the `Last Name` tolerance is configurable, you will need to update the `Total`'s tolerance appropriately.
 * Case sensitivity should be ignored and should not contribute to the Levenshtein Distance (ie. `e` == `E`).
 

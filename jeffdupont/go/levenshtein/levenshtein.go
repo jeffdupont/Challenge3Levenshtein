@@ -4,6 +4,13 @@ import "math"
 
 // Distance find the levenshtein value between two strings
 func Distance(s, t string) int {
+	if len(s) == 0 {
+		return len(t)
+	}
+	if len(t) == 0 {
+		return len(s)
+	}
+
 	m := generate(s, t)
 	for x := 1; x <= len(s); x++ {
 		for y := 1; y <= len(t); y++ {

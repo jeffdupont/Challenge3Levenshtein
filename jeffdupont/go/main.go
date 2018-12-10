@@ -8,16 +8,55 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/jeffdupont/challenge3/go/levenshtein"
+	"github.com/fsnotify/fsnotify"
+	"github.com/jeffdupont/challenge3/jeffdupont/go/levenshtein"
+	"github.com/spf13/viper"
 )
 
 var leads = map[int]lead{}
+var maxFD, maxLD int
 
 type lead struct {
+	id          int
 	first, last string
 }
 
+func init() {
+	loadLeads()
+
+	// max tolerances
+	maxFD = 3
+	maxLD = 1
+
+	setConfig()
+
+	viper.WatchConfig()
+	viper.OnConfigChange(func(e fsnotify.Event) {
+		setConfig()
+	})
+}
+
+func setConfig() {
+	viper.AddConfigPath(".")
+	viper.SetConfigName("config")
+	err := viper.ReadInConfig()
+	if err == nil {
+		maxLD = viper.GetInt("max_distance_last_name")
+	}
+}
+
 func main() {
+	first := "GABS"
+	last := "DE'ELIA"
+
+	result := search(first, last)
+	fmt.Println(result)
+
+	for {
+	}
+}
+
+func loadLeads() {
 	f, err := os.Open("leads.csv")
 	if err != nil {
 		log.Fatal(err)
@@ -39,20 +78,16 @@ func main() {
 		first := record[1]
 		last := record[2]
 
-		leads[id] = lead{first, last}
+		leads[id] = lead{id, first, last}
 	}
+}
 
-	firstName := "GABS"
-	lastName := "DE'ELIA"
-
-	// max tolerances
-	maxFD := 3
-	maxLD := 1
-	maxTotal := maxFD + (maxLD - 1)
+func search(first, last string) []lead {
+	result := []lead{}
 
 	for _, l := range leads {
-		fd := levenshtein.Distance(firstName, l.first)
-		ld := levenshtein.Distance(lastName, l.last)
+		fd := levenshtein.Distance(first, l.first)
+		ld := levenshtein.Distance(last, l.last)
 
 		if fd > maxFD {
 			continue
@@ -60,10 +95,12 @@ func main() {
 		if ld > maxLD {
 			continue
 		}
-		if (fd + ld) > maxTotal {
+
+		if (fd + ld) > (maxFD + (maxLD - 1)) {
 			continue
 		}
 
-		fmt.Println(fd, ld)
+		result = append(result, l)
 	}
+	return result
 }
